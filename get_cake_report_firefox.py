@@ -11,16 +11,19 @@ import time
 # opts = Options()
 # opts.set_headless()
 
+# path to save csv file
+path = '/Users/pbegle/Selenium/Downloads'
+
 # To prevent download dialog
 profile = webdriver.FirefoxProfile()
 profile.set_preference('browser.download.folderList', 2) # custom location
 profile.set_preference('browser.download.manager.showWhenStarting', False)
-profile.set_preference('browser.download.dir', '/Users/pbegle/Selenium/Downloads')
+profile.set_preference('browser.download.dir', path)
 profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
 
 # initialize webdriver
 # driver = webdriver.Firefox(options=opts)
-driver = webdriver.Firefox(profile)
+driver = webdriver.Firefox(firefox_profile=profile)
 driver.get("https://login.vervedirect.com/")
 
 # username
@@ -55,34 +58,28 @@ try:
 finally:
     affiliates.click()
 print("clicked affiliates tab...")
+
 # export csv
-
+# remove overlay blocking export button
 remove_overlay = """
-function removeElementsByClass(className){
-    var elements = document.getElementsByClassName(className);
-    while(elements.length > 0){
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-};
+                    function removeElementsByClass(className){
+                        var elements = document.getElementsByClassName(className);
+                        while(elements.length > 0){
+                            elements[0].parentNode.removeChild(elements[0]);
+                        }
+                    };
 
-removeElementsByClass("loading-indicator");
-"""
+                    removeElementsByClass("loading-indicator");
+                 """
+
+# get array of buttons and click the last one; export button
 script = 'document.querySelectorAll(".x-toolbar-right-ct button")[5].click()'
 
-# try:
-#     export = WebDriverWait(driver, 10).until(
-#         EC.presence_of_element_located((By.XPATH, '//*[@id="ext-gen447"]'))
-#     )
-# finally:
-#     print("exists...")
-#     export.execute_script(script)
-#     print("Success!")
-
+time.sleep(3)
 print("removing overlay...")
-time.sleep(8)
 driver.execute_script(remove_overlay)
 
+time.sleep(3)
 print("downloading csv...")
-time.sleep(5)
 driver.execute_script(script)
 print("success!")
